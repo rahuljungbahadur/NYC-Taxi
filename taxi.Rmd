@@ -1,0 +1,80 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r libraries}
+#install.packages("ggplot2")
+#install.packages("data.table")
+#install.packages("dplyr")
+install.packages("plotly")
+#
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(plotly)
+```
+
+
+```{r importing the dataset}
+taxi <- fread("train.csv")
+
+
+```
+
+
+
+```{r summary}
+head(taxi)
+summary(taxi)
+sd(taxi.refined$trip_duration)
+```
+
+```{r}
+taxi$vendor_id <- as.factor(taxi$vendor_id)
+taxi$passenger_count <- as.factor(taxi$passenger_count)
+
+```
+
+
+
+```{r plots}
+ggplot(data=taxi, aes(taxi$passenger_count, fill = taxi$vendor_id)) + geom_bar(position = "dodge")
+
+```
+
+```{r trip duration}
+ggplot(data = taxi, aes(taxi$trip_duration)) + geom_histogram(binwidth = 1000)
+ggplot(data = taxi, aes(taxi$vendor_id, taxi$trip_duration)) + geom_boxplot(outlier.colour = "red")
+ggplotly()
+```
+We can see that there are a few outliers with vendor #1. These are exponentially higher than the rest of the trips. Most probably these were due to technical glitches. It would be good to remove them from the analysis.
+
+
+```{r}
+taxi.refined <- subset(taxi, taxi$trip_duration < 12500)
+
+```
+
+
+```{r fig.width=12, fig.height=14}
+ggplot(data = taxi.refined, aes(taxi.refined$trip_duration)) + geom_density(stat = "count") + geom_vline(xintercept = mean(taxi.refined$trip_duration), col = "red", lwd = 1) + geom_vline(xintercept = median(taxi.refined$trip_duration), col = "blue", lwd = 1) + geom_vline(xintercept = mean(taxi.refined$trip_duration) - (sd(taxi.refined$trip_duration)/sqrt(nrow(taxi.refined))), col = "green") + geom_vline(xintercept = mean(taxi.refined$trip_duration) + (sd(taxi.refined$trip_duration)/sqrt(nrow(taxi.refined))), col = "green") + theme_light() + ggtitle("distribution of trip duration") + xlab("Trip Duration in seconds")
+
+```
+Seems that this plot is the population itself. The SE overlaps with the mean.
+
+
+
+```{r}
+taxi.refined$passenger_count <- as.numeric(taxi.refined$passenger_count)
+plot(taxi.refined$passenger_count, taxi.refined$trip_duration)
+
+```
+
+
+
+##create New
+```{r}
+
+
+```
